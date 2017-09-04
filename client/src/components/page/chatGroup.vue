@@ -3,20 +3,32 @@
     <div class="chat-top">
       <img class="top-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>
       <span class="top-name">超短群</span>
-      <a class="top-group" href="javascript:;">群成员(28/50)</a>
+      <a class="top-group" href="javascript:;" @click="changeShowGroup">群成员(28/50)</a>
+      <div class="group" v-show="showGroup">
+        <a class="group-one group-one-on" href="javascript:;" v-for="n in 3">
+          <img class="one-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>
+          <span class="one-status">[在线]</span>
+          <span class="one-name">秦始皇</span>
+        </a>
+        <a class="group-one" href="javascript:;" v-for="n in 10">
+          <img class="one-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>
+          <span class="one-status">[离线]</span>
+          <span class="one-name">秦始皇秦始皇秦始皇秦始皇秦始皇</span>
+        </a>
+      </div>
     </div>
-    <div class="chat-log">
+    <div class="chat-log" @click="changeShowGroupFalse">
       <li class="mes-li mes-li-left">
         <div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>
         <div class="li-box">
-          <p class="box-name">郭锦财<span class="time">20170903</span> </p>
+          <p class="box-name">汉武帝<span class="time">20170903</span> </p>
           <p class="box-mes">聊天测试看看</p>
         </div>
       </li>
       <li class="mes-li mes-li-right">
         <div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>
         <div class="li-box">
-          <p class="box-name">郭锦财<span class="time">20170903</span> </p>
+          <p class="box-name">康熙<span class="time">20170903</span> </p>
           <p class="box-mes">聊天测试看看</p>
         </div>
       </li>
@@ -26,85 +38,87 @@
       <li class="mes-li mes-li-center">
         <p class="li-text">上线/下线了</p>
       </li>
-      <p>chat-logtop</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-log</p>
-      <p>chat-logend</p>
+      <li class="mes-li mes-li-right" v-for="n in 6">
+        <div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>
+        <div class="li-box">
+          <p class="box-name">康熙<span class="time">20170903</span> </p>
+          <p class="box-mes">聊天测试看看</p>
+        </div>
+      </li>
     </div>
-    <div class="chat-edit">
-      <textarea class="edit-text" placeholder="请输入..."></textarea>
+    <div class="chat-edit" @click="changeShowGroupFalse">
+      <textarea class="edit-text" placeholder="请输入..." ref="r_editText" v-model="editText" @keyup.13="sendEnTer"></textarea>
       <div class="edit-btn">
-        <a href="javascript:;" class="btn-a">发送</a>
-        <a href="javascript:;" class="btn-a">发送</a>
+        <a href="javascript:;" class="btn-a" @click="sendEnTer">发送</a>
+        <!--<a href="javascript:;" class="btn-a">退出</a>-->
       </div>
     </div>
-    <div class="chat-group"></div>
   </div>
 </template>
 
 <script>
   import './../../public/css/base.scss'
+//  import io from 'socket.io-client'
+  import Vue from 'vue'
+  import VueRouter from 'vue-router'
+  Vue.use(VueRouter)
+  const router = new VueRouter()
   export default {
     data () {
       return {
-        showLogin: true,
-        registerName: '',
-        registerTime: null,
-        date: new Date()
+        showGroup: false,
+        editText: '',
+        account: '',
+        socket: null
       }
     },
+    created () {
+      // 判断是否登录
+      let CHATaccount = JSON.parse(window.localStorage.getItem('CHAT-account'))
+      if (CHATaccount) {
+        this.account = CHATaccount.account
+      } else {
+        router.push({ path: 'login' })
+      }
+//      console.log(io)
+//      this.socket = io.connect('http://localhost:8081')
+    },
+    mounted () {
+      this.$refs.r_editText.focus()
+
+      let oldTime = 1504509461000
+      let old = new Date(oldTime)
+      console.log('old: new Date(1504509461000): ' + old)
+      console.log('Date.parse(new Date(1504509461000)): ' + Date.parse(old))
+      console.log(old.getHours())
+      let test = Date.parse(new Date())   // Date.parse(datestring) 是一个静态函数，可以直接调用
+      console.log(test)                   // 返回一个整数,表示日期距1970年1月1日午夜之间的毫秒数(时间戳)
+    },
     methods: {
-      changeShow () {
-        this.showLogin = !this.showLogin
-        console.log(this.showLogin)
+      changeShowGroup () {
+        this.showGroup = !this.showGroup
       },
-      addUserName () {
-        this.registerName = this.registerName.replace(/\s+/g, '')
-        if (this.registerName.length > 0) {
-          console.log(this.registerName)
+      changeShowGroupFalse () {
+        this.showGroup = false
+      },
+      sendEnTer () {
+        this.editText = this.editText.replace(/\s+/g, '')
+        if (this.editText.length > 0) {
+          // 发送消息
+          let chat = {
+            account: 15011760730,
+            nickName: '野然',
+            chatTime: Date.parse(new Date()),
+            chatMes: this.editText,
+            chatToId: 401
+          }
+          console.log(chat)
+          // 发送成功之后
+          this.editText = ''
+          this.$refs.r_editText.focus()
+        } else {
+          this.editText = ''
+          this.$refs.r_editText.focus()
         }
       }
     }
@@ -126,7 +140,7 @@
     line-height: 40px;
     width: 100%;
     max-width: 750px;
-    border-bottom: 1px solid #b8b8bb;
+    border-bottom: 1px solid #d8d8d8;
     background: #ffffff;
     .top-head,.top-name,.top-group{
       float: left;
@@ -138,6 +152,49 @@
     }
     .top-group{
       float: right;
+    }
+    .group{
+      position: absolute;
+      top: 50px;
+      right: 0;
+      padding: 10px 0;
+      max-height: 350px;
+      overflow: auto;
+      border: 1px solid #d8d8d8;
+      /*background: rgba(0,0,0,0.6);*/
+      background: #ffffff;
+      .group-one{
+        display: block;
+        min-width: 200px;
+        padding: 3px 10px;
+        overflow: hidden;
+        .one-head,.one-status,.one-name{
+          float: left;
+          height: 25px;
+          line-height: 25px;
+          font-size: 14px;
+          color: #575758;
+        }
+        .one-head{
+          width: 25px;
+          height: 25px;
+          border-radius: 25px;
+        }
+        .one-status{
+          margin: 0 5px;
+        }
+        .one-name{
+          max-width: 110px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
+      .group-one-on{
+        .one-status,.one-name{
+          color: #01aefb;
+        }
+      }
     }
   }
   .chat-log{
@@ -229,7 +286,7 @@
     width: 100%;
     max-width: 750px;
     height: 100px;
-    border-top: 1px solid #b8b8bb;
+    border-top: 1px solid #d8d8d8;
     background: #ffffff;
     .edit-text{
       box-sizing: border-box;
