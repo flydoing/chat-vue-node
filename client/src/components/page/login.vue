@@ -2,15 +2,15 @@
   <div class="c-login">
     <div class="login-name">
       <div class="name" v-if="showLogin">
-        <input class="name-input" type="text" maxlength="10" placeholder="账号(6位数字)" v-model="loginAccount"/>
-        <input class="name-input" type="text" maxlength="10" placeholder="密码(6位数字)" v-model="loginPass"/>
+        <input class="name-input" type="number" maxlength="10" placeholder="账号(6位数字)" v-model="loginAccount"/>
+        <input class="name-input" type="number" maxlength="10" placeholder="密码(6位数字)" v-model="loginPass"/>
         <p class="name-p"><a class="btn" @click="pickLogin" herf="javascript:;">login</a></p>
         <a class="btn-a" @click="changeShow" herf="javascript:;">register -></a>
       </div>
       <div class="name" v-if="!showLogin">
-        <input class="name-input" type="text" maxlength="10" placeholder="账号(6位数字)" v-model="registerAccount"/>
+        <input class="name-input" type="number" maxlength="10" placeholder="账号(6位数字)" v-model="registerAccount"/>
         <input class="name-input" type="text" maxlength="10" placeholder="昵称(不能为空)" v-model="registerNickName"/>
-        <input class="name-input" type="text" maxlength="10" placeholder="密码(6位数字)" v-model="registerPass"/>
+        <input class="name-input" type="number" maxlength="10" placeholder="密码(6位数字)" v-model="registerPass"/>
         <p class="name-p"><a class="btn" @click="pickRegister" herf="javascript:;">register</a></p>
         <a class="btn-a" @click="changeShow" herf="javascript:;">login -></a>
       </div>
@@ -72,6 +72,8 @@
         }
       },
       successPass (account) {
+        // 写入store
+        this.$store.dispatch('updateChatState', {account: account, nickName: '昵称' + account})
         // 写localStorage
         window.localStorage.setItem('CHAT-account', JSON.stringify({account: account}))
         let text = JSON.parse(window.localStorage.getItem('CHAT-account'))

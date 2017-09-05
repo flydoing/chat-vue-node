@@ -18,33 +18,41 @@
       </div>
     </div>
     <div class="chat-log" @click="changeShowGroupFalse">
-      <li class="mes-li mes-li-left">
-        <div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>
-        <div class="li-box">
-          <p class="box-name">汉武帝<span class="time">20170903</span> </p>
-          <p class="box-mes">聊天测试看看</p>
+      <li class="mes-li" v-for="chat in chatLog" :class="chat.chatType === 'tips' ? 'mes-li-center' : (account === chat.account ? 'mes-li-right' : 'mes-li-left')">
+        <div class="li-head" v-if="chat.chatType === 'chat'"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>
+        <div class="li-box" v-if="chat.chatType === 'chat'">
+          <p class="box-name">{{chat.account}}<span class="time">{{chat.chatTime}}</span> </p>
+          <p class="box-mes">{{chat.chatMes}}</p>
         </div>
+        <p class="li-text" v-if="chat.chatType === 'tips'">{{chat.account}} {{chat.chatMes}}</p>
       </li>
-      <li class="mes-li mes-li-right">
-        <div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>
-        <div class="li-box">
-          <p class="box-name">康熙<span class="time">20170903</span> </p>
-          <p class="box-mes">聊天测试看看</p>
-        </div>
-      </li>
-      <li class="mes-li mes-li-center">
-        <p class="li-text">退出/加入了</p>
-      </li>
-      <li class="mes-li mes-li-center">
-        <p class="li-text">上线/下线了</p>
-      </li>
-      <li class="mes-li mes-li-right" v-for="n in 6">
-        <div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>
-        <div class="li-box">
-          <p class="box-name">康熙<span class="time">20170903</span> </p>
-          <p class="box-mes">聊天测试看看</p>
-        </div>
-      </li>
+      <!--<li class="mes-li mes-li-left">-->
+        <!--<div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>-->
+        <!--<div class="li-box">-->
+          <!--<p class="box-name">汉武帝<span class="time">20170903</span> </p>-->
+          <!--<p class="box-mes">聊天测试看看</p>-->
+        <!--</div>-->
+      <!--</li>-->
+      <!--<li class="mes-li mes-li-right">-->
+        <!--<div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>-->
+        <!--<div class="li-box">-->
+          <!--<p class="box-name">康熙<span class="time">20170903</span> </p>-->
+          <!--<p class="box-mes">聊天测试看看</p>-->
+        <!--</div>-->
+      <!--</li>-->
+      <!--<li class="mes-li mes-li-center">-->
+        <!--<p class="li-text">退出/加入了</p>-->
+      <!--</li>-->
+      <!--<li class="mes-li mes-li-center">-->
+        <!--<p class="li-text">上线/下线了</p>-->
+      <!--</li>-->
+      <!--<li class="mes-li mes-li-right" v-for="n in 6">-->
+        <!--<div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>-->
+        <!--<div class="li-box">-->
+          <!--<p class="box-name">康熙<span class="time">20170903</span> </p>-->
+          <!--<p class="box-mes">聊天测试看看</p>-->
+        <!--</div>-->
+      <!--</li>-->
     </div>
     <div class="chat-edit" @click="changeShowGroupFalse">
       <textarea class="edit-text" placeholder="请输入..." ref="r_editText" v-model="editText" @keyup.13="sendEnTer"></textarea>
@@ -58,7 +66,7 @@
 
 <script>
   import './../../public/css/base.scss'
-//  import io from 'socket.io-client'
+  import io from 'socket.io-client'
   import Vue from 'vue'
   import VueRouter from 'vue-router'
   Vue.use(VueRouter)
@@ -69,27 +77,66 @@
         showGroup: false,
         editText: '',
         account: '',
-        socket: null
+        socket: null,
+        chatLog: [
+          {
+            account: 999999,
+            nickName: '999秦始皇',
+            chatTime: Date.parse(new Date()),
+            chatMes: '哈哈哈哈哈哈哈',
+            chatToId: 401,
+            chatType: 'chat'
+          },
+          {
+            account: 777777,
+            nickName: '999秦始皇',
+            chatTime: Date.parse(new Date()),
+            chatMes: 'on-line',
+            chatToId: 401,
+            chatType: 'tips'
+          },
+          {
+            account: 888888,
+            nickName: '888汉武帝',
+            chatTime: Date.parse(new Date()),
+            chatMes: '嘻嘻嘻嘻寻寻惺惺惜惺惺',
+            chatToId: 401,
+            chatType: 'chat'
+          }
+        ]
       }
     },
     created () {
-      // 判断是否登录
+      // 判断是否on-line
       let CHATaccount = JSON.parse(window.localStorage.getItem('CHAT-account'))
       if (CHATaccount) {
-        this.account = CHATaccount.account
+        // 1.连接websocket
+        this.socket = io.connect('http://localhost:8081')
+        // 2.组织数据
+        this.account = parseInt(CHATaccount.account)
+        let chat = {
+          account: this.account,
+          nickName: '',
+          chatTime: Date.parse(new Date()),
+          chatMes: 'on-line',
+          chatToId: 401,
+          chatType: 'tips'     // chat/tips
+        }
+        // 3.on-line在线
+        this.socket.removeAllListeners()
+        this.socket.emit('userJoining', chat)
+        this.talk()
       } else {
         router.push({ path: 'login' })
       }
-//      console.log(io)
-//      this.socket = io.connect('http://localhost:8081')
     },
     mounted () {
       this.$refs.r_editText.focus()
 
       let oldTime = 1504509461000
       let old = new Date(oldTime)
-      console.log('old: new Date(1504509461000): ' + old)
-      console.log('Date.parse(new Date(1504509461000)): ' + Date.parse(old))
+      // console.log('old: new Date(1504509461000): ' + old)
+      // console.log('Date.parse(new Date(1504509461000)): ' + Date.parse(old))
       console.log(old.getHours())
       let test = Date.parse(new Date())   // Date.parse(datestring) 是一个静态函数，可以直接调用
       console.log(test)                   // 返回一个整数,表示日期距1970年1月1日午夜之间的毫秒数(时间戳)
@@ -110,7 +157,8 @@
             nickName: '野然',
             chatTime: Date.parse(new Date()),
             chatMes: this.editText,
-            chatToId: 401
+            chatToId: 401,
+            chatType: 'chat'     // tips
           }
           console.log(chat)
           // 发送成功之后
@@ -120,6 +168,18 @@
           this.editText = ''
           this.$refs.r_editText.focus()
         }
+      },
+      talk () {
+        this.socket.removeAllListeners()
+        let that = this
+        this.socket.on('userJoined', function (data) {
+          let chat = data
+          that.chatLog.push(chat)
+        })
+        this.socket.on('userQuit', function (data) {
+          let chat = data
+          that.chatLog.push(chat)
+        })
       }
     }
   }
