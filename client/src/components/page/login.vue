@@ -73,7 +73,7 @@
       },
       successPass (account) {
         // 写入store
-        this.$store.dispatch('updateChatState', {account: account, nickName: '昵称' + account})
+        this.$store.dispatch('updateChatState', {account: parseInt(account), nickName: '昵称' + account})
         // 写localStorage
         window.localStorage.setItem('CHAT-account', JSON.stringify({account: account}))
         let text = JSON.parse(window.localStorage.getItem('CHAT-account'))

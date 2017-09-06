@@ -20,8 +20,8 @@ io.on('connection', function(socket){
   console.log('one connection')
   socket.on('userJoining', function (data) {
     console.log('userJoining')
-    console.log(data)
     ++userNumber
+    console.log(userNumber)
     chat = data
     socket.account = chat.account
     socket.nickName = chat.nickName
@@ -42,12 +42,11 @@ io.on('connection', function(socket){
     }
     socket.broadcast.emit('userQuit', chat);
   })
-// 接收消息
-  socket.on('sendChat', function (data) {
-    mes = data.chat
-    console.log(mes)
-    socket.broadcast.emit('newChat', {mes})
-    // 当前人数，加入还是退出
+  // 接收消息
+  socket.on('emitChat', function (data) {
+    chat = data
+    console.log(chat)
+    socket.broadcast.emit('broadChat', chat)
   })
 });
 

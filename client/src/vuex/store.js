@@ -6,8 +6,8 @@ export default new Vuex.Store({
     sideBarState: false,
     headerTitle: '默认的头部标题',
     chatState: {
-      account: '',
-      nickName: ''
+      account: null,
+      nickName: null
     }
   },
   mutations: {

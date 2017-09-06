@@ -108,12 +108,15 @@
     },
     created () {
       // 判断是否on-line
-      let CHATaccount = JSON.parse(window.localStorage.getItem('CHAT-account'))
-      if (CHATaccount) {
+      // let CHATaccount = JSON.parse(window.localStorage.getItem('CHAT-account'))
+      // 换成vuex
+      let chatState = this.$store.getters.getChatState
+      console.log('chatState: ' + chatState)
+      if (chatState.account) {
         // 1.连接websocket
         this.socket = io.connect('http://localhost:8081')
         // 2.组织数据
-        this.account = parseInt(CHATaccount.account)
+        this.account = chatState.account
         let chat = {
           account: this.account,
           nickName: '',
@@ -153,14 +156,18 @@
         if (this.editText.length > 0) {
           // 发送消息
           let chat = {
-            account: 15011760730,
-            nickName: '野然',
+            account: this.$store.getters.getChatState.account,
+            nickName: this.$store.getters.getChatState.nickName,
             chatTime: Date.parse(new Date()),
             chatMes: this.editText,
             chatToId: 401,
             chatType: 'chat'     // tips
           }
           console.log(chat)
+          // 发送前更新本地chatLog
+          this.chatLog.push(chat)
+          // 发送
+          this.socket.emit('emitChat', chat)
           // 发送成功之后
           this.editText = ''
           this.$refs.r_editText.focus()
@@ -177,6 +184,10 @@
           that.chatLog.push(chat)
         })
         this.socket.on('userQuit', function (data) {
+          let chat = data
+          that.chatLog.push(chat)
+        })
+        this.socket.on('broadChat', function (data) {
           let chat = data
           that.chatLog.push(chat)
         })
