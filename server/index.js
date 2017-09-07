@@ -16,6 +16,9 @@ app.get('/', function(req, res){
 var userNumber = 0
 var chat = {}
 
+// 链接数据库并初始化
+const db = require('./db')
+
 io.on('connection', function(socket){
   console.log('one connection')
   socket.on('userJoining', function (data) {

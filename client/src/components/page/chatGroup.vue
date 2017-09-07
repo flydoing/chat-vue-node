@@ -84,7 +84,7 @@
             nickName: '999秦始皇',
             chatTime: Date.parse(new Date()),
             chatMes: '哈哈哈哈哈哈哈',
-            chatToId: 401,
+            chatToGroup: 401,
             chatType: 'chat'
           },
           {
@@ -92,7 +92,7 @@
             nickName: '999秦始皇',
             chatTime: Date.parse(new Date()),
             chatMes: 'on-line',
-            chatToId: 401,
+            chatToGroup: 401,
             chatType: 'tips'
           },
           {
@@ -100,7 +100,7 @@
             nickName: '888汉武帝',
             chatTime: Date.parse(new Date()),
             chatMes: '嘻嘻嘻嘻寻寻惺惺惜惺惺',
-            chatToId: 401,
+            chatToGroup: 401,
             chatType: 'chat'
           }
         ]
@@ -122,7 +122,7 @@
           nickName: '',
           chatTime: Date.parse(new Date()),
           chatMes: 'on-line',
-          chatToId: 401,
+          chatToGroup: 401,
           chatType: 'tips'     // chat/tips
         }
         // 3.on-line在线
@@ -160,7 +160,7 @@
             nickName: this.$store.getters.getChatState.nickName,
             chatTime: Date.parse(new Date()),
             chatMes: this.editText,
-            chatToId: 401,
+            chatToGroup: 401,
             chatType: 'chat'     // tips
           }
           console.log(chat)
