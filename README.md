@@ -1,1 +1,1 @@
-# chat-vue-node
+# chat-vue-node### 运行顺序：新建命令行窗口1，开启本地mongodb服务：```mongod```新建命令行窗口2，开启本地后台node服务器：```cd chat-vue-node/servercnpm install --savenode index.js```新建命令行窗口3，开启本地前端vue的dev模式：```cd chat-vue-node/clientcnpm install --savenpm run dev --color```然后在浏览器不同的窗口打开链接，进行聊天：```localhost:8080```
