@@ -53,23 +53,73 @@
         this.loginPass = this.loginPass.replace(/\s+/g, '')
         if (this.checkSixNum(this.loginAccount) && this.checkSixNum(this.loginPass)) {
           console.log('pass:')
-//          this.successPass(this.loginAccount)
+          this.login()
         } else {
           this.waringText = '请输入正确的账号和密码！'
           this.showWarning = true
         }
+      },
+      login () {
+        this.$http({
+          url: '/api/user/login',
+          method: 'GET',
+          params: {
+            account: this.loginAccount,
+            pass: this.loginPass
+          }
+        })
+          .then((res) => {
+            let data = res.data
+            console.log(data)
+            if (data.code === 200) {
+              // 登录成功,跳转路由
+              console.log(data.msg)
+              this.waringText = ''
+              this.showWarning = false
+//              router.push({ path: 'chatGroup' })
+            } else {
+              this.waringText = data.msg
+              this.showWarning = true
+            }
+          })
       },
       pickRegister () {
         this.registerAccount = this.registerAccount.replace(/\s+/g, '')
         this.registerNickName = this.registerNickName.replace(/\s+/g, '')
         this.registerPass = this.registerPass.replace(/\s+/g, '')
         if (this.checkSixNum(this.registerAccount) && this.registerNickName.length > 0 && this.checkSixNum(this.registerPass)) {
-          console.log('pass:')
-          this.successPass(this.registerAccount)
+          this.register()
+//          this.successPass(this.registerAccount)
         } else {
           this.waringText = '请输入正确的账号和密码！'
           this.showWarning = true
         }
+      },
+      register () {
+        this.$http({
+          url: '/api/user/register',
+          method: 'GET',
+          params: {
+            account: this.registerAccount,
+            nickName: this.registerNickName,
+            pass: this.registerPass,
+            regTime: Date.parse(new Date())
+          }
+        })
+          .then((res) => {
+            let data = res.data
+            console.log(data)
+            if (data.code === 200) {
+              // 注册成功,跳转路由
+              console.log(data.msg)
+              this.waringText = ''
+              this.showWarning = false
+//              router.push({ path: 'chatGroup' })
+            } else {
+              this.waringText = data.msg
+              this.showWarning = true
+            }
+          })
       },
       successPass (account) {
         // 写入store

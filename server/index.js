@@ -5,19 +5,18 @@ var http = require('http').Server(app);
 
 var io = require('socket.io')(http);
 
+// 链接数据库并初始化
+// const db = require('./db')
+const api = require('./api')
+api(app)
+
 http.listen(8081, function () {
   console.log('Server listening at port 8081');
-});
-
-app.get('/', function(req, res){
-  res.send('<h1>Hello world</h1>');
 });
 
 var userNumber = 0
 var chat = {}
 
-// 链接数据库并初始化
-const db = require('./db')
 
 io.on('connection', function(socket){
   console.log('one connection')
