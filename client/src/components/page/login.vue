@@ -72,6 +72,8 @@
             let data = res.data
             console.log(data)
             if (data.code === 200) {
+              // 更新登录的状态vuex
+              this.$store.dispatch('updateChatState', {account: parseInt(this.loginAccount), nickName: data.account})
               // 登录成功,跳转路由
               console.log(data.msg)
               this.waringText = ''
@@ -110,6 +112,8 @@
             let data = res.data
             console.log(data)
             if (data.code === 200) {
+              // 更新登录的状态vuex
+              this.$store.dispatch('updateChatState', {account: parseInt(this.registerAccount), nickName: this.registerNickName})
               // 注册成功,跳转路由
               console.log(data.msg)
               this.waringText = ''

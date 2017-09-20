@@ -29,7 +29,7 @@ module.exports = function (app) {
             res.json({code: 700, msg:'密码不正确！'})
             return
           } else {
-            res.json({code: 200, msg:'密码正确，登录成功'})
+            res.json({code: 200, msg:'密码正确，登录成功', account: doc.nickName})
             return
           }
         }
@@ -88,127 +88,39 @@ module.exports = function (app) {
     // 返回注册状态
     // res.send(JSON.stringify({code: 200, data: {account: 'guojcres', pass: 111111}}))
   })
+  //
+  app.get('/api/user/getAccountGroup', function (req, res) {
+    // 对发来的注册数据进行验证
+    let account = req.query.account
+    if (!account) {
+      res.json({code: 600, msg:'account 不能为空！'})
+      return
+    }
+    let accountGroups = {}
+    // 查询数据库,账号所在群组
+    db.relationModel.find(
+      {groupNumber: account},
+      {groupAccount:1, groupNickName:1, _id:0},
+      function(err, doc){
+        if (err) {
+          console.log('temai find error!')
+          reject('reject temai')
+        } else {
+          if (!doc) {
+            accountGroups = [];
+          } else {
+            accountGroups = doc;
+          }
+          resolve(accountGroups)
+        }
+      })
+  })
+
   // api index
   app.get('/api/goods/index', function (req, res) {
     let temai = [],
       rexiao = [],
       jingpin = [];
-    // // 1.temai
-    // db.goodsModel.find(
-    //   {brand_status: "temai"},
-    //   {brand_id:1, brand_name:1, brand_price:1, brand_pic:1, _id:0},
-    //   {limit: 3},
-    //   function(err, doc){
-    //     if (err) {
-    //       console.log('temai find error!');
-    //     } else {
-    //       if (!doc) {
-    //         temai = [];
-    //       } else {
-    //         temai = doc;
-    //       }
-    //     }
-    //   })
-    // // 2.rexiao
-    // db.goodsModel.find(
-    //   {brand_status: "rexiao"},
-    //   {brand_id:1, brand_name:1, brand_desc:1, brand_pic:1, _id:0},
-    //   {limit: 3},
-    //   function(err, doc){
-    //     if (err) {
-    //       console.log('rexiao find error!');
-    //     } else {
-    //       if (!doc) {
-    //         rexiao = [];
-    //       } else {
-    //         rexiao = doc;
-    //       }
-    //     }
-    //   })
-    // // 3.jingpin
-    // db.goodsModel.find(
-    //   {brand_status: "jingpin"},
-    //   {brand_id:1, brand_name:1, brand_price:1, brand_pic:1, _id:0},
-    //   {limit: 4},
-    //   function(err, doc){
-    //     if (err) {
-    //       console.log('jingpin find error!');
-    //     } else {
-    //       if (!doc) {
-    //         jingpin = [];
-    //       } else {
-    //         jingpin = doc;
-    //         // res
-    //         res.json({code: 200, msg:'', data: {"temai": temai, "rexiao": rexiao, "jingpin": jingpin}})
-    //         return
-    //       }
-    //     }
-    //   })
-
-    // 异步操作，未解决
-    // 1.temai
-    // db.goodsModel.find(
-    //   {brand_status: "temai"},
-    //   {brand_id:1, brand_name:1, brand_price:1, brand_pic:1, _id:0},
-    //   {limit: 3},
-    //   function(err, doc){
-    //     if (err) {
-    //       console.log('temai find error!');
-    //     } else {
-    //       if (!doc) {
-    //         temai = [];
-    //       } else {
-    //         temai = doc;
-    //       }
-    //     }
-    //   })
-    //   .then( () => {
-    //     // 2.rexiao
-    //     db.goodsModel.find(
-    //       {brand_status: "rexiao"},
-    //       {brand_id:1, brand_name:1, brand_desc:1, brand_pic:1, _id:0},
-    //       {limit: 3},
-    //       function(err, doc){
-    //         if (err) {
-    //           console.log('rexiao find error!');
-    //         } else {
-    //           if (!doc) {
-    //             rexiao = [];
-    //           } else {
-    //             rexiao = doc;
-    //           }
-    //         }
-    //       })
-    //       .then( () => {
-    //       // 3.jingpin
-    //       db.goodsModel.find(
-    //         {brand_status: "jingpin"},
-    //         {brand_id:1, brand_name:1, brand_price:1, brand_pic:1, _id:0},
-    //         {limit: 4},
-    //         function(err, doc){
-    //           if (err) {
-    //             console.log('jingpin find error!');
-    //           } else {
-    //             if (!doc) {
-    //               jingpin = [];
-    //             } else {
-    //               jingpin = doc;
-    //             }
-    //           }
-    //         })
-    //         .then( () => {
-    //         // res
-    //         res.json({code: 200, msg:'', data: {"temai": temai, "rexiao": rexiao, "jingpin": jingpin}})
-    //         return
-    //       })
-    //     })
-    //   })
-    //   .catch( (err) => {
-    //     res.json({code: 200, msg:'', data: {"temai": temai, "rexiao": rexiao, "jingpin": jingpin}})
-    //     return
-    //   })
-
-    // promise 解决
     // temai
     const getTemai = new Promise((resolve,reject) => {
       db.goodsModel.find(
