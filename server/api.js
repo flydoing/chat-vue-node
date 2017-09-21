@@ -91,7 +91,7 @@ module.exports = function (app) {
   //
   app.get('/api/user/getAccountGroup', function (req, res) {
     // 对发来的注册数据进行验证
-    let account = req.query.account
+    let account = parseInt(req.query.account)
     if (!account) {
       res.json({code: 600, msg:'account 不能为空！'})
       return
@@ -99,19 +99,25 @@ module.exports = function (app) {
     let accountGroups = {}
     // 查询数据库,账号所在群组
     db.relationModel.find(
-      {groupNumber: account},
+      // {groupNumber: {$in: [222222]}},
+      {groupNumber: {$in: [account]}},
       {groupAccount:1, groupNickName:1, _id:0},
       function(err, doc){
         if (err) {
-          console.log('temai find error!')
-          reject('reject temai')
+          console.log('relationModel find error!')
+          res.json({code: 700, msg:'查询出错：' + err})
+          return
         } else {
           if (!doc) {
             accountGroups = [];
+            res.json({code: 200, msg:'success', accountGroups: accountGroups})
+            return
           } else {
             accountGroups = doc;
+            console.log(doc)
+            res.json({code: 200, msg:'success', accountGroups: accountGroups})
+            return
           }
-          resolve(accountGroups)
         }
       })
   })

@@ -40,6 +40,11 @@
       }
     },
     created () {
+      // 判断是否登录
+      let chatState = this.$store.getters.getChatState
+      if (chatState.account) {
+        router.push({ path: 'center' })
+      }
       // window.localStorage.setItem(name, JSON.stringify(obj))
       // JSON.parse(window.localStorage.getItem(name))
     },
@@ -78,7 +83,7 @@
               console.log(data.msg)
               this.waringText = ''
               this.showWarning = false
-//              router.push({ path: 'chatGroup' })
+              router.push({ path: 'center' })
             } else {
               this.waringText = data.msg
               this.showWarning = true
@@ -118,7 +123,7 @@
               console.log(data.msg)
               this.waringText = ''
               this.showWarning = false
-//              router.push({ path: 'chatGroup' })
+              router.push({ path: 'center' })
             } else {
               this.waringText = data.msg
               this.showWarning = true
