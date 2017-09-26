@@ -70,6 +70,7 @@
       enterGroup (groupAccount) {
         console.log('enterGroup:' + groupAccount)
         // 跳转路由
+        router.push({ path: 'chatGroup', query: {groupAccount: groupAccount} })
       },
       loginOut () {
         // 在不在线？在线离线的控制点在哪好呢

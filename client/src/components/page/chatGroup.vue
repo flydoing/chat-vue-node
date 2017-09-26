@@ -3,18 +3,23 @@
     <div class="chat-top">
       <img class="top-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>
       <span class="top-name">超短群</span>
-      <a class="top-group" href="javascript:;" @click="changeShowGroup">群成员(28/50)</a>
+      <a class="top-group" href="javascript:;" @click="changeShowGroup">群成员({{groupNumber.length}})</a>
       <div class="group" v-show="showGroup">
-        <a class="group-one group-one-on" href="javascript:;" v-for="n in 3">
+        <a class="group-one group-one-on" href="javascript:;" v-for="num in groupNumber">
           <img class="one-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>
-          <span class="one-status">[在线]</span>
-          <span class="one-name">秦始皇</span>
+          <!--<span class="one-status">[在线]</span>-->
+          <span class="one-name">{{num}}</span>
         </a>
-        <a class="group-one" href="javascript:;" v-for="n in 10">
-          <img class="one-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>
-          <span class="one-status">[离线]</span>
-          <span class="one-name">秦始皇秦始皇秦始皇秦始皇秦始皇</span>
-        </a>
+        <!--<a class="group-one group-one-on" href="javascript:;" v-for="n in 3">-->
+          <!--<img class="one-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>-->
+          <!--<span class="one-status">[在线]</span>-->
+          <!--<span class="one-name">秦始皇</span>-->
+        <!--</a>-->
+        <!--<a class="group-one" href="javascript:;" v-for="n in 10">-->
+          <!--<img class="one-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>-->
+          <!--<span class="one-status">[离线]</span>-->
+          <!--<span class="one-name">秦始皇秦始皇秦始皇秦始皇秦始皇</span>-->
+        <!--</a>-->
       </div>
     </div>
     <div class="chat-log" @click="changeShowGroupFalse">
@@ -103,10 +108,12 @@
             chatToGroup: 401,
             chatType: 'chat'
           }
-        ]
+        ],
+        groupNumber: []
       }
     },
     created () {
+      console.log(this.$route.query.groupAccount)
       // 判断是否on-line
       // let CHATaccount = JSON.parse(window.localStorage.getItem('CHAT-account'))
       // 换成vuex
@@ -129,6 +136,7 @@
         this.socket.removeAllListeners()
         this.socket.emit('userJoining', chat)
         this.talk()
+        this.getGroupNumber()
       } else {
         router.push({ path: 'login' })
       }
@@ -175,6 +183,31 @@
           this.editText = ''
           this.$refs.r_editText.focus()
         }
+      },
+      getGroupNumber () {
+        let groupAccount = this.$route.query.groupAccount
+        if (!groupAccount) {
+          console.log('不存在$route.query.groupAccount，不请求')
+          return
+        }
+        this.$http({
+          url: '/api/user/getGroupNumber',
+          method: 'GET',
+          params: {
+            groupAccount: groupAccount
+          }
+        })
+          .then((res) => {
+            let data = res.data
+            console.log(data)
+            if (data.code === 200) {
+              // 更新我加入的群
+              this.groupNumber = data.groupNumber
+            } else {
+              // 提示获取失败
+              console.log(data.msg)
+            }
+          })
       },
       talk () {
         this.socket.removeAllListeners()

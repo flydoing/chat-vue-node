@@ -88,7 +88,7 @@ module.exports = function (app) {
     // 返回注册状态
     // res.send(JSON.stringify({code: 200, data: {account: 'guojcres', pass: 111111}}))
   })
-  //
+  //getAccountGroup
   app.get('/api/user/getAccountGroup', function (req, res) {
     // 对发来的注册数据进行验证
     let account = parseInt(req.query.account)
@@ -121,7 +121,36 @@ module.exports = function (app) {
         }
       })
   })
-
+  //getAccountGroup
+  app.get('/api/user/getGroupNumber', function (req, res) {
+    // 对发来的注册数据进行验证
+    let groupAccount = parseInt(req.query.groupAccount)
+    if (!groupAccount) {
+      res.json({code: 600, msg:'groupAccount 不能为空！'})
+      return
+    }
+    // 查询数据库,账号所在群组
+    db.relationModel.findOne(
+      {groupAccount: groupAccount},
+      {groupNumber:1, _id:0},
+      function(err, doc){
+        if (err) {
+          console.log('relationModel find error!')
+          res.json({code: 700, msg:'查询出错：' + err})
+          return
+        } else {
+          if (!doc) {
+            res.json({code: 200, msg:'success', groupNumber: []})
+            return
+          } else {
+            console.log(doc)
+            res.json({code: 200, msg:'success', groupNumber: doc.groupNumber})
+            // 找出了account，还得找昵称啊
+            return
+          }
+        }
+      })
+  })
   // api index
   app.get('/api/goods/index', function (req, res) {
     let temai = [],
