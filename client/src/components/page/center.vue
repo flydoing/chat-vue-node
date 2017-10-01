@@ -2,7 +2,7 @@
   <div class="c-center">
     <ul>
       <li class="group-li" v-for="account in accountGroups">
-        <a href="javascript:;" class="group-a" @click="enterGroup(account.groupAccount)">
+        <a href="javascript:;" class="group-a" @click="enterGroup({groupAccount: account.groupAccount, groupNickName: account.groupNickName})">
           <img class="pic" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>
           <span class="name">{{account.groupNickName}}</span>
         </a>
@@ -67,10 +67,12 @@
             }
           })
       },
-      enterGroup (groupAccount) {
-        console.log('enterGroup:' + groupAccount)
+      enterGroup (obj) {
+        console.log('enterGroup:' + obj)
+        // 先更新state：
+        this.$store.dispatch('updateGroupState', obj)
         // 跳转路由
-        router.push({ path: 'chatGroup', query: {groupAccount: groupAccount} })
+        router.push({ path: 'chatGroup', query: {groupAccount: obj.groupAccount} })
       },
       loginOut () {
         // 在不在线？在线离线的控制点在哪好呢

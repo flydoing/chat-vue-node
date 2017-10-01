@@ -2,13 +2,13 @@
   <div class="c-chat">
     <div class="chat-top">
       <img class="top-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>
-      <span class="top-name">超短群</span>
+      <span class="top-name">{{groupNickName}}</span>
       <a class="top-group" href="javascript:;" @click="changeShowGroup">群成员({{groupNumber.length}})</a>
       <div class="group" v-show="showGroup">
-        <a class="group-one group-one-on" href="javascript:;" v-for="num in groupNumber">
+        <a class="group-one group-one-on" href="javascript:;" v-for="account in groupNumber">
           <img class="one-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>
           <!--<span class="one-status">[在线]</span>-->
-          <span class="one-name">{{num}}</span>
+          <span class="one-name">{{account.nickName}}</span>
         </a>
         <!--<a class="group-one group-one-on" href="javascript:;" v-for="n in 3">-->
           <!--<img class="one-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>-->
@@ -26,7 +26,7 @@
       <li class="mes-li" v-for="chat in chatLog" :class="chat.chatType === 'tips' ? 'mes-li-center' : (account === chat.account ? 'mes-li-right' : 'mes-li-left')">
         <div class="li-head" v-if="chat.chatType === 'chat'"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>
         <div class="li-box" v-if="chat.chatType === 'chat'">
-          <p class="box-name">{{chat.account}}<span class="time">{{chat.chatTime}}</span> </p>
+          <p class="box-name">{{chat.nickName}} {{chat.account}}<span class="time">{{chat.chatTime}}</span> </p>
           <p class="box-mes">{{chat.chatMes}}</p>
         </div>
         <p class="li-text" v-if="chat.chatType === 'tips'">{{chat.account}} {{chat.chatMes}}</p>
@@ -83,37 +83,40 @@
         editText: '',
         account: '',
         socket: null,
-        chatLog: [
-          {
-            account: 999999,
-            nickName: '999秦始皇',
-            chatTime: Date.parse(new Date()),
-            chatMes: '哈哈哈哈哈哈哈',
-            chatToGroup: 401,
-            chatType: 'chat'
-          },
-          {
-            account: 777777,
-            nickName: '999秦始皇',
-            chatTime: Date.parse(new Date()),
-            chatMes: 'on-line',
-            chatToGroup: 401,
-            chatType: 'tips'
-          },
-          {
-            account: 888888,
-            nickName: '888汉武帝',
-            chatTime: Date.parse(new Date()),
-            chatMes: '嘻嘻嘻嘻寻寻惺惺惜惺惺',
-            chatToGroup: 401,
-            chatType: 'chat'
-          }
-        ],
+        groupNickName: '',
+        chatLog: [],
+//        chatLog: [
+//          {
+//            account: 999999,
+//            nickName: '秦始皇',
+//            chatTime: Date.parse(new Date()),
+//            chatMes: '哈哈哈哈哈哈哈',
+//            chatToGroup: 401,
+//            chatType: 'chat'
+//          },
+//          {
+//            account: 777777,
+//            nickName: '秦始皇',
+//            chatTime: Date.parse(new Date()),
+//            chatMes: 'on-line',
+//            chatToGroup: 401,
+//            chatType: 'tips'
+//          },
+//          {
+//            account: 888888,
+//            nickName: '汉武帝',
+//            chatTime: Date.parse(new Date()),
+//            chatMes: '嘻嘻嘻嘻寻寻惺惺惜惺惺',
+//            chatToGroup: 401,
+//            chatType: 'chat'
+//          }
+//        ],
         groupNumber: []
       }
     },
     created () {
       console.log(this.$route.query.groupAccount)
+      this.groupNickName = this.$store.getters.getGroupState.groupNickName
       // 判断是否on-line
       // let CHATaccount = JSON.parse(window.localStorage.getItem('CHAT-account'))
       // 换成vuex
@@ -137,6 +140,7 @@
         this.socket.emit('userJoining', chat)
         this.talk()
         this.getGroupNumber()
+        this.getChatLog()
       } else {
         router.push({ path: 'login' })
       }
@@ -158,6 +162,27 @@
       },
       changeShowGroupFalse () {
         this.showGroup = false
+      },
+      getChatLog () {
+        let groupAccount = this.$store.getters.getGroupState.groupAccount
+        this.$http({
+          url: '/api/getChatLog',
+          method: 'GET',
+          params: {
+            groupAccount: groupAccount
+          }
+        })
+          .then((res) => {
+            let data = res.data
+            console.log(data)
+            if (data.code === 200) {
+              // 更新我加入的群
+              this.chatLog = data.chatLog
+            } else {
+              // 提示获取失败
+              console.log(data.msg)
+            }
+          })
       },
       sendEnTer () {
         this.editText = this.editText.replace(/\s+/g, '')
@@ -282,6 +307,7 @@
         .one-head{
           width: 25px;
           height: 25px;
+          margin-right: 5px;
           border-radius: 25px;
         }
         .one-status{
