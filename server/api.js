@@ -143,97 +143,45 @@ module.exports = function (app) {
             res.json({code: 200, msg:'success', groupNumber: []})
             return
           } else {
-            console.log(doc)
-            res.json({code: 200, msg:'success', groupNumber: doc.groupNumber})
+            // res.json({code: 200, msg:'success', groupNumber: doc.groupNumber})
             // 找出了account，还得找昵称啊
+            let groupNumber = doc.groupNumber
+            db.accountModel.find({ account: {$in:groupNumber}},function(error,doc){
+              console.log(doc);
+              res.json({code: 200, msg:'success', groupNumber: doc})
+            });
             return
           }
         }
       })
   })
-  // api index
-  app.get('/api/goods/index', function (req, res) {
-    let temai = [],
-      rexiao = [],
-      jingpin = [];
-    // temai
-    const getTemai = new Promise((resolve,reject) => {
-      db.goodsModel.find(
-        {brand_status: "temai"},
-        {brand_id:1, brand_name:1, brand_price:1, brand_pic:1, brand_status:1, _id:0},
-        {limit: 3},
-        function(err, doc){
-          if (err) {
-            console.log('temai find error!')
-            reject('reject temai')
-          } else {
-            if (!doc) {
-              temai = [];
-            } else {
-              temai = doc;
-            }
-            resolve(temai)
-          }
-        })
-    })
-    // rexiao
-    const getRexiao = new Promise((resolve,reject) => {
-      db.goodsModel.find(
-        {brand_status: "rexiao"},
-        {brand_id:1, brand_name:1, brand_desc:1, brand_pic:1, brand_status:1, _id:0},
-        {limit: 3},
-        function(err, doc){
-          if (err) {
-            console.log('rexiao find error!');
-            reject('reject rexiao')
-          } else {
-            if (!doc) {
-              rexiao = [];
-            } else {
-              rexiao = doc;
-            }
-            resolve(rexiao)
-          }
-        })
-    })
-    // jingpin
-    const getJingpin = new Promise((resolve,reject) => {
-      db.goodsModel.find(
-        {brand_status: "jingpin"},
-        {brand_id:1, brand_name:1, brand_price:1, brand_pic:1, brand_status:1, _id:0},
-        {limit: 4},
-        function(err, doc){
-          if (err) {
-            console.log('jingpin find error!')
-            reject('reject jingpin')
-          } else {
-            if (!doc) {
-              jingpin = []
-            } else {
-              jingpin = doc
-            }
-            resolve(jingpin)
-          }
-        })
-    })
+  // api login
+  app.get('/api/getChatLog', function (req, res) {
+    let groupAccount = req.query.groupAccount
+    // 对发来的登录数据进行验证
+    if (!groupAccount) {
+      res.json({code: 600, msg:'groupAccount 不能为空！'})
+      return
+    }
+    nowModel =  groupAccount === 101 ? db.group1Model : db.group2Model
+    nowModel.find({}, function(err, doc){
+      if (err) {
+        console.log('查询出错：' + err);
+        res.json({code: 700, msg:'查询出错：' + err})
+        return
+      } else {
+        if (!doc) {
+          res.json({code: 700, msg:'该群无消息记录：'})
+          return
+        } else {
+          console.log(doc)
+          res.json({code: 200, msg:'读取群消息成功', chatLog: doc})
+          return
+        }
 
-    const p_all = Promise.all([getTemai, getRexiao, getJingpin])
-
-    p_all.then( (suc) => {
-      let data = {
-        "temai": suc[0],
-        "rexiao": suc[1],
-        "jingpin": suc[2]
       }
-      res.json({code: 200, msg:'', data: data})
-      return
-    }).catch( (err) => {
-      console.log('err all:' + err)
-      res.json({code: 600, msg:'查询出错', data: data})
-      return
     })
   })
-
   app.get('*', function(req, res){
     res.end('404')
   })
