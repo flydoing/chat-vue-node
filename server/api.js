@@ -163,7 +163,7 @@ module.exports = function (app) {
       res.json({code: 600, msg:'groupAccount 不能为空！'})
       return
     }
-    nowModel =  groupAccount === 101 ? db.group1Model : db.group2Model
+    nowModel =  groupAccount === '101' ? db.group1Model : db.group2Model
     nowModel.find({}, function(err, doc){
       if (err) {
         console.log('查询出错：' + err);

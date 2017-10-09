@@ -111,11 +111,11 @@
 //            chatType: 'chat'
 //          }
 //        ],
-        groupNumber: []
+        groupNumber: [],
+        groupState: {}
       }
     },
     created () {
-      console.log(this.$route.query.groupAccount)
       this.groupNickName = this.$store.getters.getGroupState.groupNickName
       // 判断是否on-line
       // let CHATaccount = JSON.parse(window.localStorage.getItem('CHAT-account'))
@@ -123,9 +123,28 @@
       let chatState = this.$store.getters.getChatState
       console.log('chatState: ' + chatState)
       if (chatState.account) {
+//        // 1.连接websocket
+//        this.socket = io.connect('http://localhost:8081')
+//        // 2.组织数据
+//        this.account = chatState.account
+//        let chat = {
+//          account: this.account,
+//          nickName: '',
+//          chatTime: Date.parse(new Date()),
+//          chatMes: 'on-line',
+//          chatToGroup: 401,
+//          chatType: 'tips'     // chat/tips
+//        }
+//        // 3.on-line在线
+//        this.socket.removeAllListeners()
+//        this.socket.emit('userJoining', chat)
+//        this.talk()
+//        this.getGroupNumber()
+//        this.getChatLog()
+        // 1009
         // 1.连接websocket
         this.socket = io.connect('http://localhost:8081')
-        // 2.组织数据
+        // 1.组织数据
         this.account = chatState.account
         let chat = {
           account: this.account,
@@ -135,9 +154,12 @@
           chatToGroup: 401,
           chatType: 'tips'     // chat/tips
         }
-        // 3.on-line在线
+        // join room,
+        this.groupState = this.$store.getters.getGroupState
+        this.socket.join(this.groupState.groupAccount)
+        // 3.on-line在线 room发送消息
         this.socket.removeAllListeners()
-        this.socket.emit('userJoining', chat)
+        this.socket.to(this.groupState.groupAccount).emit('userJoining', chat)
         this.talk()
         this.getGroupNumber()
         this.getChatLog()

@@ -19,7 +19,9 @@ var chat = {}
 
 
 io.on('connection', function(socket){
-  console.log('one connection')
+  console.log('center.vue connection')
+  // room join
+
   socket.on('userJoining', function (data) {
     console.log('userJoining')
     ++userNumber

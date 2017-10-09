@@ -26,6 +26,7 @@
 
 <script>
   import './../../public/css/base.scss'
+//  import io from 'socket.io-client'
   import Vue from 'vue'
   import VueRouter from 'vue-router'
   Vue.use(VueRouter)
@@ -34,13 +35,17 @@
     data () {
       return {
         chatState: '',
-        accountGroups: []
+        accountGroups: [],
+        socket: null
       }
     },
     created () {
       // 判断是否登录
       this.chatState = this.$store.getters.getChatState
       if (this.chatState.account) {
+        // 连接websocket
+//        this.socket = io.connect('http://localhost:8081')
+        // 请求数据库
         this.getAccountGroup()
       } else {
         router.push({ path: 'login' })
