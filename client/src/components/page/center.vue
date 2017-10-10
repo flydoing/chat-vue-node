@@ -43,8 +43,6 @@
       // 判断是否登录
       this.chatState = this.$store.getters.getChatState
       if (this.chatState.account) {
-        // 连接websocket
-//        this.socket = io.connect('http://localhost:8081')
         // 请求数据库
         this.getAccountGroup()
       } else {

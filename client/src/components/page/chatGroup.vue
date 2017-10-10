@@ -31,33 +31,6 @@
         </div>
         <p class="li-text" v-if="chat.chatType === 'tips'">{{chat.account}} {{chat.chatMes}}</p>
       </li>
-      <!--<li class="mes-li mes-li-left">-->
-        <!--<div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>-->
-        <!--<div class="li-box">-->
-          <!--<p class="box-name">汉武帝<span class="time">20170903</span> </p>-->
-          <!--<p class="box-mes">聊天测试看看</p>-->
-        <!--</div>-->
-      <!--</li>-->
-      <!--<li class="mes-li mes-li-right">-->
-        <!--<div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>-->
-        <!--<div class="li-box">-->
-          <!--<p class="box-name">康熙<span class="time">20170903</span> </p>-->
-          <!--<p class="box-mes">聊天测试看看</p>-->
-        <!--</div>-->
-      <!--</li>-->
-      <!--<li class="mes-li mes-li-center">-->
-        <!--<p class="li-text">退出/加入了</p>-->
-      <!--</li>-->
-      <!--<li class="mes-li mes-li-center">-->
-        <!--<p class="li-text">上线/下线了</p>-->
-      <!--</li>-->
-      <!--<li class="mes-li mes-li-right" v-for="n in 6">-->
-        <!--<div class="li-head"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>-->
-        <!--<div class="li-box">-->
-          <!--<p class="box-name">康熙<span class="time">20170903</span> </p>-->
-          <!--<p class="box-mes">聊天测试看看</p>-->
-        <!--</div>-->
-      <!--</li>-->
     </div>
     <div class="chat-edit" @click="changeShowGroupFalse">
       <textarea class="edit-text" placeholder="请输入..." ref="r_editText" v-model="editText" @keyup.13="sendEnTer"></textarea>
@@ -116,6 +89,11 @@
       }
     },
     created () {
+      // 判断是否登录
+      this.chatState = this.$store.getters.getChatState
+      if (!this.chatState.account) {
+        router.push({ path: 'login' })
+      }
       this.groupNickName = this.$store.getters.getGroupState.groupNickName
       // 判断是否on-line
       // let CHATaccount = JSON.parse(window.localStorage.getItem('CHAT-account'))
@@ -144,6 +122,7 @@
         // 1009
         // 1.连接websocket
         this.socket = io.connect('http://localhost:8081')
+        this.groupState = this.$store.getters.getGroupState
         // 1.组织数据
         this.account = chatState.account
         let chat = {
@@ -151,15 +130,12 @@
           nickName: '',
           chatTime: Date.parse(new Date()),
           chatMes: 'on-line',
-          chatToGroup: 401,
+          chatToGroup: this.groupState.groupAccount,
           chatType: 'tips'     // chat/tips
         }
-        // join room,
-        this.groupState = this.$store.getters.getGroupState
-        this.socket.join(this.groupState.groupAccount)
         // 3.on-line在线 room发送消息
         this.socket.removeAllListeners()
-        this.socket.to(this.groupState.groupAccount).emit('userJoining', chat)
+        this.socket.emit('joinToRoom', chat)
         this.talk()
         this.getGroupNumber()
         this.getChatLog()
@@ -215,7 +191,7 @@
             nickName: this.$store.getters.getChatState.nickName,
             chatTime: Date.parse(new Date()),
             chatMes: this.editText,
-            chatToGroup: 401,
+            chatToGroup: this.groupState.groupAccount,
             chatType: 'chat'     // tips
           }
           console.log(chat)
@@ -259,7 +235,11 @@
       talk () {
         this.socket.removeAllListeners()
         let that = this
-        this.socket.on('userJoined', function (data) {
+        this.socket.on('joinToRoom', function (data) {
+          let chat = data
+          that.chatLog.push(chat)
+        })
+        this.socket.on('leaveToRoom', function (data) {
           let chat = data
           that.chatLog.push(chat)
         })
@@ -272,10 +252,22 @@
           that.chatLog.push(chat)
         })
       }
+    },
+    beforeDestroy () {
+      let chat = {
+        account: this.account,
+        nickName: '',
+        chatTime: Date.parse(new Date()),
+        chatMes: 'off-line',
+        chatToGroup: this.groupState.groupAccount,
+        chatType: 'tips'     // chat/tips
+      }
+      // 3.on-line在线 room发送消息
+      this.socket.removeAllListeners()
+      this.socket.emit('leaveToRoom', chat)
     }
   }
 </script>
-
 <style lang="scss" scope>
   .c-chat{
     position: relative;
