@@ -55,6 +55,7 @@
         showGroup: false,
         editText: '',
         account: '',
+        nickName: '',
         socket: null,
         groupNickName: '',
         chatLog: [],
@@ -100,6 +101,7 @@
       // 换成vuex
       let chatState = this.$store.getters.getChatState
       console.log('chatState: ' + chatState)
+      console.log(chatState.nickName)
       if (chatState.account) {
 //        // 1.连接websocket
 //        this.socket = io.connect('http://localhost:8081')
@@ -125,9 +127,10 @@
         this.groupState = this.$store.getters.getGroupState
         // 1.组织数据
         this.account = chatState.account
+        this.nickName = chatState.nickName
         let chat = {
           account: this.account,
-          nickName: '',
+          nickName: this.nickName,
           chatTime: Date.parse(new Date()),
           chatMes: 'on-line',
           chatToGroup: this.groupState.groupAccount,
@@ -135,7 +138,12 @@
         }
         // 3.on-line在线 room发送消息
         this.socket.removeAllListeners()
-        this.socket.emit('joinToRoom', chat)
+        // 延时，解决中文乱码问题，刚connect;emit chat时候又不会乱码啊
+        let that = this
+        setTimeout(function () {
+          that.socket.emit('joinToRoom', chat)
+        }, 200)
+
         this.talk()
         this.getGroupNumber()
         this.getChatLog()
@@ -256,7 +264,7 @@
     beforeDestroy () {
       let chat = {
         account: this.account,
-        nickName: '',
+        nickName: this.nickName,
         chatTime: Date.parse(new Date()),
         chatMes: 'off-line',
         chatToGroup: this.groupState.groupAccount,
@@ -264,7 +272,11 @@
       }
       // 3.on-line在线 room发送消息
       this.socket.removeAllListeners()
-      this.socket.emit('leaveToRoom', chat)
+      // 延时，解决中文乱码问题，刚connect;emit chat时候又不会乱码啊
+      let that = this
+      setTimeout(function () {
+        that.socket.emit('leaveToRoom', chat)
+      }, 200)
     }
   }
 </script>

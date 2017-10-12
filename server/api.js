@@ -114,7 +114,6 @@ module.exports = function (app) {
             return
           } else {
             accountGroups = doc;
-            console.log(doc)
             res.json({code: 200, msg:'success', accountGroups: accountGroups})
             return
           }
@@ -147,7 +146,6 @@ module.exports = function (app) {
             // 找出了account，还得找昵称啊
             let groupNumber = doc.groupNumber
             db.accountModel.find({ account: {$in:groupNumber}},function(error,doc){
-              console.log(doc);
               res.json({code: 200, msg:'success', groupNumber: doc})
             });
             return
@@ -174,7 +172,6 @@ module.exports = function (app) {
           res.json({code: 700, msg:'该群无消息记录：'})
           return
         } else {
-          console.log(doc)
           res.json({code: 200, msg:'读取群消息成功', chatLog: doc})
           return
         }

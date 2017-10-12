@@ -20,6 +20,8 @@
         <!--</a>-->
       <!--</li>-->
     </ul>
+    <a href="javascript:;" class="center-info">我的账号：{{chatState.account}}</a>
+    <a href="javascript:;" class="center-info">我的昵称：{{chatState.nickName}}</a>
     <a href="javascript:;" class="login-out" @click="loginOut()">退出登录</a>
   </div>
 </template>
@@ -60,7 +62,6 @@
         })
           .then((res) => {
             let data = res.data
-            console.log(data)
             if (data.code === 200) {
               // 更新我加入的群
               this.accountGroups = data.accountGroups
@@ -117,6 +118,15 @@
         font-size: 18px;
       }
     }
+    &:last-child{
+      margin-bottom: 20px;
+    }
+  }
+  .center-info{
+    display: block;
+    padding: 5px 0 5px 10px;
+    font-size: 16px;
+    background: #dbeef7;
   }
   .login-out{
     display: block;
