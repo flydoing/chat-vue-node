@@ -8,7 +8,7 @@
         <a class="group-one group-one-on" href="javascript:;" v-for="account in groupNumber">
           <img class="one-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>
           <!--<span class="one-status">[在线]</span>-->
-          <span class="one-name">{{account.nickName}}</span>
+          <span class="one-name">{{account}}</span>
         </a>
         <!--<a class="group-one group-one-on" href="javascript:;" v-for="n in 3">-->
           <!--<img class="one-head" src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/>-->
@@ -59,32 +59,6 @@
         socket: null,
         groupNickName: '',
         chatLog: [],
-//        chatLog: [
-//          {
-//            account: 999999,
-//            nickName: '秦始皇',
-//            chatTime: Date.parse(new Date()),
-//            chatMes: '哈哈哈哈哈哈哈',
-//            chatToGroup: 401,
-//            chatType: 'chat'
-//          },
-//          {
-//            account: 777777,
-//            nickName: '秦始皇',
-//            chatTime: Date.parse(new Date()),
-//            chatMes: 'on-line',
-//            chatToGroup: 401,
-//            chatType: 'tips'
-//          },
-//          {
-//            account: 888888,
-//            nickName: '汉武帝',
-//            chatTime: Date.parse(new Date()),
-//            chatMes: '嘻嘻嘻嘻寻寻惺惺惜惺惺',
-//            chatToGroup: 401,
-//            chatType: 'chat'
-//          }
-//        ],
         groupNumber: [],
         groupState: {}
       }
@@ -103,25 +77,6 @@
       console.log('chatState: ' + chatState)
       console.log(chatState.nickName)
       if (chatState.account) {
-//        // 1.连接websocket
-//        this.socket = io.connect('http://localhost:8081')
-//        // 2.组织数据
-//        this.account = chatState.account
-//        let chat = {
-//          account: this.account,
-//          nickName: '',
-//          chatTime: Date.parse(new Date()),
-//          chatMes: 'on-line',
-//          chatToGroup: 401,
-//          chatType: 'tips'     // chat/tips
-//        }
-//        // 3.on-line在线
-//        this.socket.removeAllListeners()
-//        this.socket.emit('userJoining', chat)
-//        this.talk()
-//        this.getGroupNumber()
-//        this.getChatLog()
-        // 1009
         // 1.连接websocket
         this.socket = io.connect('http://localhost:8081')
         this.groupState = this.$store.getters.getGroupState
@@ -145,8 +100,7 @@
         }, 200)
 
         this.talk()
-        this.getGroupNumber()
-        this.getChatLog()
+//        this.getChatLog()
       } else {
         router.push({ path: 'login' })
       }
@@ -215,6 +169,7 @@
           this.$refs.r_editText.focus()
         }
       },
+      // 暂时不MongoDB
       getGroupNumber () {
         let groupAccount = this.$route.query.groupAccount
         if (!groupAccount) {
@@ -251,9 +206,13 @@
           let chat = data
           that.chatLog.push(chat)
         })
+        this.socket.on('updateGroupNumber', function (data) {
+          let groupNumber = data
+          that.groupNumber = groupNumber
+        })
         this.socket.on('userQuit', function (data) {
-          let chat = data
-          that.chatLog.push(chat)
+//          let chat = data
+//          that.chatLog.push(chat)
         })
         this.socket.on('broadChat', function (data) {
           let chat = data
