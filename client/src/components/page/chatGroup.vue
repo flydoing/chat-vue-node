@@ -26,7 +26,7 @@
       <li class="mes-li" v-for="chat in chatLog" :class="chat.chatType === 'tips' ? 'mes-li-center' : (account === chat.account ? 'mes-li-right' : 'mes-li-left')">
         <div class="li-head" v-if="chat.chatType === 'chat'"><img src="http://img01.rastargame.com/p_upload/2017/0605/1496634201481713.png"/></div>
         <div class="li-box" v-if="chat.chatType === 'chat'">
-          <p class="box-name">{{chat.nickName}} {{chat.account}}<span class="time">{{chat.chatTime}}</span> </p>
+          <p class="box-name">{{chat.nickName}}<span class="time">{{chat.chatTime}}</span> </p>
           <p class="box-mes">{{chat.chatMes}}</p>
         </div>
         <p class="li-text" v-if="chat.chatType === 'tips'">{{chat.account}} {{chat.chatMes}}</p>
@@ -157,13 +157,14 @@
             chatType: 'chat'     // tips
           }
           console.log(chat)
-          // 发送前更新本地chatLog
-          this.chatLog.push(chat)
           // 发送
           this.socket.emit('emitChat', chat)
           // 发送成功之后
           this.editText = ''
           this.$refs.r_editText.focus()
+          // 发送前更新本地chatLog
+          chat.chatTime = this.timeFormat(chat.chatTime)
+          this.chatLog.push(chat)
         } else {
           this.editText = ''
           this.$refs.r_editText.focus()
@@ -200,10 +201,12 @@
         let that = this
         this.socket.on('joinToRoom', function (data) {
           let chat = data
+          chat.chatTime = that.timeFormat(chat.chatTime)
           that.chatLog.push(chat)
         })
         this.socket.on('leaveToRoom', function (data) {
           let chat = data
+          chat.chatTime = that.timeFormat(chat.chatTime)
           that.chatLog.push(chat)
         })
         this.socket.on('updateGroupNumber', function (data) {
@@ -211,14 +214,34 @@
           that.groupNumber = groupNumber
         })
         this.socket.on('userQuit', function (data) {
-//          let chat = data
+          let chat = data
+          chat.chatTime = that.timeFormat(chat.chatTime)
 //          that.chatLog.push(chat)
         })
         this.socket.on('broadChat', function (data) {
           let chat = data
+          chat.chatTime = that.timeFormat(chat.chatTime)
           that.chatLog.push(chat)
         })
+      },
+      // 时间格式化处理
+      add0 (m) {
+        return m < 10 ? '0' + m : m
+      },
+      timeFormat (timestamp) {
+        let time = new Date(timestamp)
+        let y = time.getFullYear()
+        let m = time.getMonth() + 1
+        let d = time.getDate()
+        let h = time.getHours()
+        let mm = time.getMinutes()
+        let s = time.getSeconds()
+        return y + '/' + this.add0(m) + '/' + this.add0(d) + ' ' + this.add0(h) + ':' + this.add0(mm) + ':' + this.add0(s)
       }
+    },
+    updated () {
+      // 保持滚动到底部
+      document.querySelector('.c-chat').scrollTo(0, 99999999999)
     },
     beforeDestroy () {
       let chat = {
@@ -333,12 +356,17 @@
         max-width: 75%;
         overflow: hidden;
         .box-name{
+          margin-bottom: 2px;
           font-size: 14px;
           color: #01aefb;
           .time{
             display: inline-block;
             margin: 0 10px;
+            padding: 0px 10px;
+            font-size: 12px;
             color: #b8b8bb;
+            border-radius: 5px;
+            background: #f3f4f5;
           }
         }
         .box-mes{
@@ -389,7 +417,7 @@
         display: inline-block;
         padding: 4px 10px;
         font-size: 13px;
-        color: #b8b8bb;
+        color: #1fff18;
         border-radius: 5px;
         background:#f3f4f5;
       }
