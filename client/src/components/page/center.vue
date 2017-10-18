@@ -53,23 +53,27 @@
     },
     methods: {
       getAccountGroup () {
-        this.$http({
-          url: '/api/user/getAccountGroup',
-          method: 'GET',
-          params: {
-            account: this.chatState.account
-          }
-        })
-          .then((res) => {
-            let data = res.data
-            if (data.code === 200) {
-              // 更新我加入的群
-              this.accountGroups = data.accountGroups
-            } else {
-              // 提示获取失败
-              console.log(data.msg)
-            }
-          })
+        this.accountGroups = [
+          {groupAccount: 101, groupNickName: '同事群'},
+          {groupAccount: 102, groupNickName: '同学群'}
+        ]
+//        this.$http({
+//          url: '/api/user/getAccountGroup',
+//          method: 'GET',
+//          params: {
+//            account: this.chatState.account
+//          }
+//        })
+//          .then((res) => {
+//            let data = res.data
+//            if (data.code === 200) {
+//              // 更新我加入的群
+//              this.accountGroups = data.accountGroups
+//            } else {
+//              // 提示获取失败
+//              console.log(data.msg)
+//            }
+//          })
       },
       enterGroup (obj) {
         console.log('enterGroup:' + obj)
